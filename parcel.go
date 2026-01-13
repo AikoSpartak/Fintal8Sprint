@@ -63,6 +63,10 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 
 	rows, err := s.db.Query("SELECT number, client, status, address, created_at FROM parcel WHERE client = :client",
 		sql.Named("client", client))
+	if err != nil {
+		return []Parcel{}, err
+	}
+	defer rows.Close()
 
 	var res []Parcel
 
@@ -74,6 +78,10 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 			return []Parcel{}, err
 		}
 		res = append(res, par)
+	}
+
+	if err = rows.Err(); err != nil {
+		return []Parcel{}, err
 	}
 
 	return res, nil
